@@ -19,21 +19,24 @@ class MainWindow(QWidget):
         super().__init__()
 
         self.setWindowTitle("Simmons Student Class Hub")
-        layout = QGridLayout()
-        self.setLayout(layout)
+        self.layout = QGridLayout()
+        self.setLayout(self.layout)
         self.setContentsMargins(30, 30, 30, 30)
 
         self.studentName = "Lee"
 
-        # for c in range(len(studentClasses)):
-        #     layout.addWidget(QLabel(str(studentClasses[c])), c, 0, Qt.AlignmentFlag.AlignCenter)
-        # layout.addWidget(studentClasses, 0, 0)
+    def getUserClasses(self):
+        for c in range(len(self.__classes)):
+            self.layout.addWidget(QLabel(str(self.__classes[c])), c, 0, Qt.AlignmentFlag.AlignCenter)
 
-    def findStudent(self, name):
-        pass
-    #     for stud in s:
-    #         if stud.name == name:
-    #             return stud.classes
+    def updateStudent(self, s):
+        self.__student = s
+        self.__classes = self.__student.getClasses()
+
+    def findStudent(self, name, s):
+        for stud in s:
+            if str(stud.getName()) == name:
+                self.updateStudent(stud)
         
 def getStudentNameFromDF():
     students = {}
@@ -118,12 +121,16 @@ def main():
             # see if class was already created
             classes = searchAppendClasses(row, classes, stud)
         students.append(stud)
-        stud.getOrderedClasses()
+        stud.classesByDOW()
     currentDate = pd.Timestamp(2024, 9, 4)
     currentTime = pd.to_datetime("13:00:00", format="%H:%M:%S")
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
+
+    window.findStudent(window.studentName, students)
+    window.getUserClasses()
+
     sys.exit(app.exec())
 
 

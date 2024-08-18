@@ -5,25 +5,31 @@ class Student:
         self.__name = name
         self.__classes = []
         self.__currentClass = None
-        self.__orderedClasses = {}
+        self.classesByDOW()
 
-    def getOrderedClasses(self):
+
+    def classesByDOW(self):
+        self.__dowClasses = {}
         for dow in range(0, 5):
-            self.__orderedClasses[dow] = []
+            self.__dowClasses[dow] = []
         for cName in self.__classes:
             cObject = cName.getClassObject()
             dowList = cObject.getDOW()
             if dowList is not None:
                 for dow in dowList:
-                    self.__orderedClasses[dow].append(cObject)
-        for dow, classes in self.__orderedClasses.items():
+                    self.__dowClasses[dow].append(cObject)
+        for dow, classes in self.__dowClasses.items():
             classes.sort(key = lambda x: x.getTStart())
+
+    def getName(self):
+        return self.__name
 
     def getClasses(self):
         return self.__classes
     
     def appendClass(self, c):
         self.__classes.append(c)
+        self.classesByDOW()
 
     def __str__(self) -> str:
         return self.__name
