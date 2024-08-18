@@ -1,35 +1,35 @@
-from Class import Class
+from Course import Course
 
 class Student:
     def __init__(self, name) -> None:
         self.__name = name
-        self.__classes = []
-        self.__currentClass = None
-        self.classesByDOW()
+        self.__courses = []
+        self.__currentCourse = None
+        self.coursesByDOW()
 
 
-    def classesByDOW(self):
-        self.__dowClasses = {}
+    def coursesByDOW(self):
+        self.__dowCourses = {}
         for dow in range(0, 5):
-            self.__dowClasses[dow] = []
-        for cName in self.__classes:
-            cObject = cName.getClassObject()
+            self.__dowCourses[dow] = []
+        for cName in self.__courses:
+            cObject = cName.getCourseObject()
             dowList = cObject.getDOW()
             if dowList is not None:
                 for dow in dowList:
-                    self.__dowClasses[dow].append(cObject)
-        for dow, classes in self.__dowClasses.items():
-            classes.sort(key = lambda x: x.getTStart())
+                    self.__dowCourses[dow].append(cObject)
+        for dow, courses in self.__dowCourses.items():
+            courses.sort(key = lambda x: x.getTStart())
 
     def getName(self):
         return self.__name
 
-    def getClasses(self):
-        return self.__classes
+    def getCourses(self):
+        return self.__courses
     
-    def appendClass(self, c):
-        self.__classes.append(c)
-        self.classesByDOW()
+    def appendCourse(self, c):
+        self.__courses.append(c)
+        self.coursesByDOW()
 
     def __str__(self) -> str:
         return self.__name

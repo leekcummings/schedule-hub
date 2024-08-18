@@ -9,7 +9,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
 from Student import Student
-from Class import Class
+from Course import Course
 
 # hide openpxyl spreadsheet warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
@@ -25,13 +25,13 @@ class MainWindow(QWidget):
 
         self.studentName = "Lee"
 
-    def getUserClasses(self):
-        for c in range(len(self.__classes)):
-            self.layout.addWidget(QLabel(str(self.__classes[c])), c, 0, Qt.AlignmentFlag.AlignCenter)
+    def getUserCourses(self):
+        for c in range(len(self.__courses)):
+            self.layout.addWidget(QLabel(str(self.__courses[c])), c, 0, Qt.AlignmentFlag.AlignCenter)
 
     def updateStudent(self, s):
         self.__student = s
-        self.__classes = self.__student.getClasses()
+        self.__courses = self.__student.getCourses()
 
     def findStudent(self, name, s):
         for stud in s:
@@ -71,7 +71,7 @@ def convertTimeToDatetime(cTime):
     cTime = pd.to_datetime(f"{hours}:{minutes}:00", format="%H:%M:%S")
     return cTime
 
-def createClass(row):
+def createCourse(row):
     name = row["Course Listing"].split("-")[0]
     fullName = row["Course Listing"].split("-")[1]
     prof = row["Instructor"]
@@ -88,24 +88,24 @@ def createClass(row):
     dStart = row["Start Date"]
     dEnd = row["End Date"]
     loc = row["Delivery Mode"]
-    return Class(name, fullName, prof, dow, tStart, tEnd, dStart, dEnd, loc)
+    return Course(name, fullName, prof, dow, tStart, tEnd, dStart, dEnd, loc)
 
-def searchAppendClasses(row, classes, stud):
+def searchAppendCourses(row, courses, stud):
     name = row["Course Listing"].split("-")[0]
-    hasClass = False
-    for c in classes:
-        if hasClass == False and name == c.getName():
+    hasCourse = False
+    for c in courses:
+        if hasCourse == False and name == c.getName():
             # append student/class to each other
             c.appendStudent(stud)
-            stud.appendClass(c)
-            hasClass = True
-    if hasClass == False:
+            stud.appendCourse(c)
+            hasCourse = True
+    if hasCourse == False:
         # create new class if not already present
-        newClass = createClass(row)
-        classes.append(newClass)
-        newClass.appendStudent(stud)
-        stud.appendClass(newClass)
-    return classes
+        newCourse = createCourse(row)
+        courses.append(newCourse)
+        newCourse.appendStudent(stud)
+        stud.appendCourse(newCourse)
+    return courses
 
 def createStudent(name):
     stud = Student(name)
@@ -114,14 +114,14 @@ def createStudent(name):
 def main():
     studentNameDF = getStudentNameFromDF()
     students = []
-    classes = []
+    courses = []
     for name, df in studentNameDF.items():
         stud = createStudent(name)
         for index, row in df.iterrows():
             # see if class was already created
-            classes = searchAppendClasses(row, classes, stud)
+            courses = searchAppendCourses(row, courses, stud)
         students.append(stud)
-        stud.classesByDOW()
+        stud.coursesByDOW()
     currentDate = pd.Timestamp(2024, 9, 4)
     currentTime = pd.to_datetime("13:00:00", format="%H:%M:%S")
     app = QApplication(sys.argv)
@@ -129,7 +129,7 @@ def main():
     window.show()
 
     window.findStudent(window.studentName, students)
-    window.getUserClasses()
+    window.getUserCourses()
 
     sys.exit(app.exec())
 
