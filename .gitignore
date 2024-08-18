@@ -1,5 +1,5 @@
 # Ignore Excel files with student schedule information
-*.xlsx
+spreadsheets/*.xlsx
 
 # Ignore pychache folder
 __pycache__
