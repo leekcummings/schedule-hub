@@ -21,7 +21,8 @@ class MainWindow(QWidget):
         self.setWindowTitle("Simmons Student Class Hub")
         self.layout = QGridLayout()
         self.setLayout(self.layout)
-        self.setContentsMargins(30, 30, 30, 30)
+        self.layout.setContentsMargins(50, 50, 50, 50)
+        self.layout.setSpacing(30)
 
         self.studentName = "Lee"
 
@@ -31,45 +32,50 @@ class MainWindow(QWidget):
         # self.label2 = QLabel(str(pd.to_datetime("13:00:00", format="%H:%M:%S").time()))
         # self.layout.addWidget(self.label2, 1, 0, Qt.AlignmentFlag.AlignCenter)
 
+    def getCoursePositionString(self, course, time):
+        if course.tStart <= time <= course.tEnd:
+            label = "Current Course:"
+        elif course.tStart > time: 
+            label = "Upcoming Course:"
+        else:
+            label = "Previous Course:"
+        return label
+
+    def addStudentsToClasses(self, course):
+        hBox = QHBoxLayout()
+        self.courseLayout.addLayout(hBox)
+
+        for stud in course.students:
+            if stud.name != self.studentName:
+                hBox.addWidget(QLabel(str(stud)))
+            else:
+                hBox.addWidget(QLabel(str("Me!")))
+
+    def createCourseWidget(self, course, time):
+        label = self.getCoursePositionString(course, time)
+        self.courseLayout.addWidget(QLabel(label))
+        self.courseLayout.addWidget(QLabel(str(course.name)))
+        self.addStudentsToClasses(course)
+
     def addCoursesLayout(self, date, time):
-        counter = 0
+        self.courseLayout = QVBoxLayout()
+        self.layout.addLayout(self.courseLayout, 0, 0)
+        # only display today's courses
         for course in self.dowCourses[date.dayofweek]:
             if course.dStart <= date.date() <= course.dEnd:
-                if course.tStart <= time <= course.tEnd:
-                    currentCourse = QLabel("Current Course")
-                    currentCourse.setContentsMargins(30, 60, 30, 60)
-                    self.layout.addWidget(currentCourse, counter+2, 0, 
-                        Qt.AlignmentFlag.AlignCenter)
-                    self.layout.addWidget(QLabel(str(course)), counter+2, 1, 
-                        Qt.AlignmentFlag.AlignCenter)
-                    counter += 1
-                    vBox = QHBoxLayout()
-                    self.layout.addLayout(vBox, counter+2, 0, 1, 2)
-                    for stud in course.students:
-                        vBox.addWidget(QLabel(str(stud)))
-                        counter += 1
-                elif course.tStart > time:
-                    self.layout.addWidget(QLabel("Upcoming Course"), counter+2, 0, 
-                    Qt.AlignmentFlag.AlignCenter)
-                    self.layout.addWidget(QLabel(str(course)), counter+2, 1, 
-                        Qt.AlignmentFlag.AlignCenter)
-                    counter += 1
-                else:
-                    self.layout.addWidget(QLabel("Previous Course"), counter+2, 0, 
-                    Qt.AlignmentFlag.AlignCenter)
-                    self.layout.addWidget(QLabel(str(course)), counter+2, 1, 
-                        Qt.AlignmentFlag.AlignCenter)
-                    counter += 1
-          
+                self.createCourseWidget(course, time)
+                              
     def addFriendsLayout(self, date, time, students):
-        counter = 2
+        # seperated layout for friend information
+        self.friendsTab = QVBoxLayout()
+        self.layout.addLayout(self.friendsTab, 0, 3)
+
         for stud in students:
             if stud.name != self.studentName:
                 for course in self.dowCourses[date.dayofweek]:
                     if (course.dStart <= date.date() <= course.dEnd) and (course.tStart <= time <= course.tEnd):
-                        self.layout.addWidget(QLabel(str(stud)), counter, 3, Qt.AlignmentFlag.AlignCenter)
-                        self.layout.addWidget(QLabel(str(course)), counter, 4, Qt.AlignmentFlag.AlignCenter)
-                        counter += 1
+                        self.friendsTab.addWidget(QLabel(str(stud)))
+                        self.friendsTab.addWidget(QLabel(str(course)))
 
     def updateStudent(self, s):
         self.student = s
@@ -165,7 +171,13 @@ def createStudent(name):
     stud = Student(name)
     return stud
 
+def launchApplicationCheck():
+    if "spreadsheets" not in os.listdir():
+        # launch screen
+        pass
+
 def main():
+    launchApplicationCheck()
     students = []
     courses = []
 
