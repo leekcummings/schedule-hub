@@ -1,103 +1,20 @@
 from Student import Student
 from Course import Course
+from MainWindow import MainWindow
+import launch
 
 import os
 import sys
+import re
 import warnings
 import numpy as np
 import pandas as pd
-
-from PyQt6.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QHBoxLayout, QVBoxLayout, QGridLayout
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QIcon
+ 
+from PyQt6.QtWidgets import QApplication
 
 # hide openpxyl spreadsheet warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
-
-class MainWindow(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.setWindowTitle("Simmons Student Class Hub")
-        self.layout = QGridLayout()
-        self.setLayout(self.layout)
-        self.layout.setContentsMargins(50, 50, 50, 50)
-        self.layout.setSpacing(30)
-
-        self.studentName = "Lee"
-
-        # Datetime info
-        # self.label1 = QLabel(str(pd.Timestamp(2024, 9, 4).date()))
-        # self.layout.addWidget(self.label1, 0, 0, Qt.AlignmentFlag.AlignCenter)
-        # self.label2 = QLabel(str(pd.to_datetime("13:00:00", format="%H:%M:%S").time()))
-        # self.layout.addWidget(self.label2, 1, 0, Qt.AlignmentFlag.AlignCenter)
-
-    def getCoursePositionString(self, course, time):
-        if course.tStart <= time <= course.tEnd:
-            label = "Current Course:"
-        elif course.tStart > time: 
-            label = "Upcoming Course:"
-        else:
-            label = "Previous Course:"
-        return label
-
-    def addStudentsToClasses(self, course):
-        hBox = QHBoxLayout()
-        self.courseLayout.addLayout(hBox)
-
-        for stud in course.students:
-            if stud.name != self.studentName:
-                hBox.addWidget(QLabel(str(stud)))
-            else:
-                hBox.addWidget(QLabel(str("Me!")))
-
-    def createCourseWidget(self, course, time):
-        label = self.getCoursePositionString(course, time)
-        self.courseLayout.addWidget(QLabel(label))
-        self.courseLayout.addWidget(QLabel(str(course.name)))
-        self.addStudentsToClasses(course)
-
-    def addCoursesLayout(self, date, time):
-        self.courseLayout = QVBoxLayout()
-        self.layout.addLayout(self.courseLayout, 0, 0)
-        # only display today's courses
-        for course in self.dowCourses[date.dayofweek]:
-            if course.dStart <= date.date() <= course.dEnd:
-                self.createCourseWidget(course, time)
-                              
-    def addFriendsLayout(self, date, time, students):
-        # seperated layout for friend information
-        self.friendsTab = QVBoxLayout()
-        self.layout.addLayout(self.friendsTab, 0, 3)
-
-        for stud in students:
-            if stud.name != self.studentName:
-                for course in self.dowCourses[date.dayofweek]:
-                    if (course.dStart <= date.date() <= course.dEnd) and (course.tStart <= time <= course.tEnd):
-                        self.friendsTab.addWidget(QLabel(str(stud)))
-                        self.friendsTab.addWidget(QLabel(str(course)))
-
-    def updateStudent(self, s):
-        self.student = s
-        self.courses = s.courses
-        self.dowCourses = s.dowCourses
-
-    def findStudent(self, name, s):
-        for stud in s:
-            if str(stud.name) == name:
-                self.updateStudent(stud)
-        
-def getStudentNameFromDF():
-    students = {}
-    # for spreadsheets in folder
-    for f in os.listdir('./spreadsheets'):
-        # file name becomes student name
-        name = f.split(".")[0]
-        # get cd to find filepath
-        cd = os.getcwd()
-        students[name] = pd.read_excel(cd+"/spreadsheets/"+f, skiprows=2)
-    return students
-
+ 
 def convertDOW(dow):
     # dayToNum based on pandas .dayofweek()
     # convert each DOW abbreviation to num
@@ -171,32 +88,29 @@ def createStudent(name):
     stud = Student(name)
     return stud
 
-def launchApplicationCheck():
-    if "spreadsheets" not in os.listdir():
-        # launch screen
-        pass
-
 def main():
-    launchApplicationCheck()
+    launch.fileCheck()
     students = []
     courses = []
 
-    studentNameDF = getStudentNameFromDF()
+    studentNameDF = launch.getStudentNameFromDF()
+    selectedName = launch.selectSelfName(studentNameDF)    
 
     for name, df in studentNameDF.items():
         stud = createStudent(name)
+        print(df)
         for index, row in df.iterrows():
             courses = searchAppendCourses(row, courses, stud)
         students.append(stud)
         stud.coursesByDOW() # probably change so it only runs on user, not all students
 
     # TEMP DATETIME
-    currentDate = pd.Timestamp(2024, 9, 4) # don't add .date(), it breaks later code
-    currentTime = pd.to_datetime("13:00:00", format="%H:%M:%S").time()
+    currentDate = pd.Timestamp("today") # don't add .date(), it breaks later code
+    currentTime = pd.to_datetime("today", format="%H:%M:%S").time()
 
     # create PyQt6 application
     app = QApplication(sys.argv)
-    window = MainWindow()
+    window = MainWindow(selectedName)
     window.show()
 
     # add widgets to window
