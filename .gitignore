@@ -3,3 +3,6 @@ spreadsheets/*.xlsx
 
 # Ignore pychache folder
 __pycache__
+
+# ignore user JSON settings 
+settings.json

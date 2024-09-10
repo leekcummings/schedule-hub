@@ -1,5 +1,8 @@
-class Course:
+from Event import Event
+
+class Course(Event):
     def __init__(self, name, fullName, prof, dow, tStart, tEnd, dStart, dEnd, loc) -> None:
+        super().__init__(name, tStart, tEnd, dStart, dEnd)
         self.name = name
         self.fullName = fullName
         self.prof = prof
@@ -11,5 +14,5 @@ class Course:
         self.loc = loc
         self.students = []
     
-    def __str__(self) -> str:
-        return self.name
+    def getFullName(self):
+        return self.fullName
