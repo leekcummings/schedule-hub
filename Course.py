@@ -13,6 +13,9 @@ class Course(Event):
         self.dEnd = dEnd
         self.loc = loc
         self.students = []
-    
-    def getFullName(self):
-        return self.fullName
+
+    def __str__(self) -> str:
+        if self.fullName == None:
+            return self.name
+        else:
+            return self.fullName

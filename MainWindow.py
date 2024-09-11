@@ -42,7 +42,7 @@ class MainWindow(QWidget):
     def createCourseWidget(self, course, time):
         label = self.getCoursePositionString(course, time)
         self.courseLayout.addWidget(QLabel(label))
-        self.courseLayout.addWidget(QLabel(str(course.name)))
+        self.courseLayout.addWidget(QLabel(str(course)))
         self.courseLayout.addWidget(QLabel(f"{str(course.formatTime(course.tStart))} - {str(course.formatTime(course.tEnd))}"))
         self.addStudentsToClasses(course)
 

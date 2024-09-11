@@ -1,5 +1,6 @@
 import os
 import re
+from openpyxl import load_workbook
 import pandas as pd
 
 def intialLaunch():
@@ -26,6 +27,20 @@ def jsonValidFormat(name):
             print(f"{name} file broken, please delete and restart program")
             exit()
 
+def deidentifier(f, stuName):
+    workbook = load_workbook(filename="spreadsheets"+os.sep+f)
+    sheet = workbook.active
+    max_row = sheet.max_row
+
+    for row in range(4, max_row+1):
+        sheet[f"A{row}"] = str(stuName)
+    os.remove("spreadsheets" + os.sep+f)
+    filename = f.split(".")[0]
+    newFName = filename + "0000" + ".xlsx"
+    workbook.save(filename="spreadsheets" + os.sep+newFName)
+    print("File has been deidentified")
+    return newFName
+
 def getStudentNameFromDF():
     students = {}
     # for spreadsheets in folder
@@ -34,8 +49,11 @@ def getStudentNameFromDF():
             # get cd to find filepath
             cd = os.getcwd()
             # pull student name from spreadsheet
-            name = pd.read_excel(cd+os.sep+"spreadsheets"+os.sep+f, skiprows=2).iat[0, 0].split(" (")[0]
-            students[name] = pd.read_excel(cd+os.sep+"spreadsheets"+os.sep+f, skiprows=2)
+            personalInfo = pd.read_excel("spreadsheets"+os.sep+f, skiprows=2).iat[0, 0].split(" (")
+            if len(personalInfo) > 1:
+                f = deidentifier(f, personalInfo[0])
+            name = personalInfo[0]
+            students[name] = pd.read_excel("spreadsheets"+os.sep+f, skiprows=2)
         else:
             print(f"{f} could not be read (must be .xlsx file)")
     return students

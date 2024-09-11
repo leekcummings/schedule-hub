@@ -7,12 +7,11 @@ class Event():
         self.dEnd = dEnd
         self.loc = loc
 
-    def __str__(self) -> str:
-        return self.name
-    
     def formatTime(self, time, displayPeriod: bool = True):
         if displayPeriod:
             return time.strftime("%I:%M %p")
         else:
             return time.strftime("%I:%M")
-    
+            
+    def __str__(self) -> str:
+        return self.name
