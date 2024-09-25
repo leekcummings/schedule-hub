@@ -36,8 +36,7 @@ def main():
         stud.coursesByDOW() # probably change so it only runs on user, not all students
 
     # TEMP DATETIME
-    # currentDate = pd.Timestamp("today") # don't add .date(), it breaks later code
-    currentDate = pd.Timestamp("today")
+    currentDate = pd.Timestamp("today") # don't add .date(), it breaks later code
     currentTime = pd.to_datetime("today", format="%H:%M:%S").time()
 
     # create PyQt6 application
